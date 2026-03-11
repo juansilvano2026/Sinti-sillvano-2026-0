@@ -1,0 +1,89 @@
+@startuml Clínica_Salud_Plus
+
+skinparam classAttributeIconSize 0
+skinparam monochrome true
+hide empty members
+
+title Diagrama de Clases - Gestión de Citas Clínica Salud+
+
+abstract class Persona {
+    # nombre : string
+    + mostrar() : void {virtual}
+    + getNombre() : string
+}
+
+class Paciente {
+    - dni : string
+    - edad : int
+    - telefono : string
+    + Paciente(n, d, e, t)
+    + mostrar() : void {override}
+    + getDni() : string
+}
+
+class Doctor {
+    - codigo : string
+    - especialidad : string
+    - tarifa : double
+    + Doctor(n, c, e, t)
+    + mostrar() : void {override}
+    + getCodigo() : string
+    + getEspecialidad() : string
+}
+
+class HistoriaClinica {
+    - entradas : vector<unique_ptr<EntradaHistoria>>
+    + agregarEntrada(fecha, nota) : void
+}
+
+class EntradaHistoria {
+    + fecha : string
+    + nota : string
+}
+
+class Cita {
+    - id : int
+    - fecha : string
+    - hora : string
+    - motivo : string
+    + Cita(id, p, d, f, h, m)
+    + mostrar() : void
+}
+
+class Clinica {
+    - pacientes : vector<unique_ptr<Paciente>>
+    - doctores : vector<unique_ptr<Doctor>>
+    - citas : vector<unique_ptr<Cita>>
+    + registrarPaciente(p) : void
+    + registrarDoctor(d) : void
+    + agendarCita(id, dni, cod, f, h, m) : void
+    + cancelarCita(id) : void
+}
+
+class Reporte <<static>> {
+    + generarPorEspecialidad(c : Clinica) : void
+}
+
+' --- RELACIONES OBLIGATORIAS DEL TALLER ---
+
+' A) Herencia [cite: 20-22]
+Persona <|-- Paciente
+Persona <|-- Doctor
+
+' B) Composición (Vida dependiente) [cite: 23-26]
+Paciente *-- HistoriaClinica
+HistoriaClinica *-- "1..*" EntradaHistoria
+
+' C) Agregación (La clínica los administra) [cite: 27-28]
+Clinica o-- Doctor
+Clinica o-- Paciente
+
+' D) Asociación (Cita vincula a ambos) [cite: 29-30]
+Cita "0..*" -> "1" Paciente : asociado a
+Cita "0..*" -> "1" Doctor : asociado a
+Clinica *-- Cita
+
+' E) Dependencia (Reporte usa a Clinica) [cite: 31-33]
+Reporte ..> Clinica : usa para estadísticas
+
+@enduml
